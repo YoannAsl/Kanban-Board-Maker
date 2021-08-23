@@ -19,7 +19,17 @@ const initialState = [
 export const listsSlice = createSlice({
 	name: 'list',
 	initialState,
-	reducers: { add: (state) => {} },
+	reducers: {
+		addList: (state) => {
+			const newList = {
+				id: state.length + 1,
+				title: 'Placeholder',
+				cards: [],
+			};
+			state.push(newList);
+		},
+	},
 });
 
+export const { addList } = listsSlice.actions;
 export default listsSlice.reducer;

@@ -1,12 +1,14 @@
 import React from 'react';
+import { useAppDispatch } from '../../hooks';
 import Card, { CardProps } from './card/Card';
 
-interface Props {
+interface ListProps {
 	title: string;
 	cards: CardProps[];
 }
 
-const List = ({ title, cards }: Props) => {
+const List = ({ title, cards }: ListProps) => {
+	// const dispatch = useAppDispatch();
 	return (
 		<li>
 			<h1>{title}</h1>
@@ -19,6 +21,7 @@ const List = ({ title, cards }: Props) => {
 					/>
 				))}
 			</ul>
+			{/* <button onClick={() => dispatch()}>Create a new list</button> */}
 		</li>
 	);
 };
