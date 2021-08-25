@@ -31,6 +31,8 @@ const ListsContainer = () => {
 	]);
 
 	const addList = () => {
+		console.log('NEED TO CHANGE IDS');
+
 		const newList = {
 			id: lists.length + 1,
 			title: 'Placeholder',
@@ -41,18 +43,22 @@ const ListsContainer = () => {
 
 	const addCard = (listId: number) => {
 		const list = lists.find((list) => list.id === listId);
-		console.log(list);
+		const listIndex = lists.indexOf(list!);
 
+		console.log('NEED TO CHANGE IDS');
 		const newCard = {
-			// id: list.cards.length + 1,
-			id: 10,
+			id: list!.cards.length + 1,
 			title: 'New card title placeholder',
 			description: 'new card description placholder',
 		};
-		const updatedList = lists[lists.indexOf(list!)].cards.push(newCard);
-		console.log(updatedList);
-		// setLists([...lists]);
-		// console.log(list!.cards);
+
+		list!.cards.push(newCard);
+
+		setLists([
+			...lists.slice(0, listIndex),
+			list!,
+			...lists.slice(listIndex + 1),
+		]);
 	};
 
 	return (
@@ -65,7 +71,6 @@ const ListsContainer = () => {
 					cards={list.cards}
 					addCard={addCard}
 				/>
-				// <List key={idx} list={list} />
 			))}
 			{/* <button onClick={() => dispatch(addList())}> */}
 			<button onClick={addList}>Create a new list</button>
