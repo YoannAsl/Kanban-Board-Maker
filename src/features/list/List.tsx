@@ -5,12 +5,20 @@ import Card, { CardProps } from './card/Card';
 export interface ListProps {
 	id: number;
 	title: string;
-	cards: CardProps[];
+	cards: { id: number; title: string; description: string }[];
 	addCard: (listId: number) => void;
 	removeList: (listId: number) => void;
+	removeCard: (cardId: number) => void;
 }
 
-const List = ({ id, title, cards, addCard, removeList }: ListProps) => {
+const List = ({
+	id,
+	title,
+	cards,
+	addCard,
+	removeList,
+	removeCard,
+}: ListProps) => {
 	// const List = ({ list }: ListProps) => {
 	// const { title, cards } = list;
 	// const dispatch = useAppDispatch();
@@ -19,11 +27,13 @@ const List = ({ id, title, cards, addCard, removeList }: ListProps) => {
 		<li>
 			<h1>{title}</h1>
 			<ul>
-				{cards.map((card, idx) => (
+				{cards.map((card) => (
 					<Card
-						key={idx}
+						key={card.id}
+						id={card.id}
 						title={card.title}
 						description={card.description}
+						removeCard={removeCard}
 					/>
 				))}
 			</ul>

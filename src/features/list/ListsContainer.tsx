@@ -22,14 +22,24 @@ const ListsContainer = () => {
 		{
 			id: generateID(),
 			title: 'Series',
-			cards: [{ id: 0, title: 'SNK', description: 'SNK description' }],
+			cards: [
+				{
+					id: generateID(),
+					title: 'SNK',
+					description: 'SNK description',
+				},
+			],
 		},
 		{
 			id: generateID(),
 			title: 'Movies',
 			cards: [
-				{ id: 0, title: 'Suicide Squad', description: 'meh' },
-				{ id: 1, title: 'Joker', description: 'good' },
+				{
+					id: generateID(),
+					title: 'Suicide Squad',
+					description: 'meh',
+				},
+				{ id: generateID(), title: 'Joker', description: 'good' },
 			],
 		},
 	]);
@@ -78,6 +88,26 @@ const ListsContainer = () => {
 		setLists(newLists);
 	};
 
+	const removeCard = (cardId: number) => {
+		// Gets list and index from the state
+		const list = lists.find((list) =>
+			list.cards.some((card) => card.id === cardId)
+		);
+		const listIndex = lists.indexOf(list!);
+
+		// Gets card and index
+		const card = list!.cards.find((card) => card.id === cardId);
+		const cardIndex = list!.cards.indexOf(card!);
+
+		list!.cards.splice(cardIndex, 1);
+
+		setLists([
+			...lists.slice(0, listIndex),
+			list!,
+			...lists.slice(listIndex + 1),
+		]);
+	};
+
 	return (
 		<section>
 			{lists.map((list) => (
@@ -88,6 +118,7 @@ const ListsContainer = () => {
 					cards={list.cards}
 					addCard={addCard}
 					removeList={removeList}
+					removeCard={removeCard}
 				/>
 			))}
 			{/* <button onClick={() => dispatch(addList())}> */}
