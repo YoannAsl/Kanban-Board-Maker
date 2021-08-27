@@ -11,17 +11,21 @@ import List, { ListProps } from './List';
 // 	cards: CardProps[];
 // };
 
+const generateID = () => {
+	return Math.floor(Math.random() * 10000);
+};
+
 const ListsContainer = () => {
 	// const dispatch = useAppDispatch();
 	// const lists = useAppSelector((state) => state.lists);
 	const [lists, setLists] = useState([
 		{
-			id: 0,
+			id: generateID(),
 			title: 'Series',
 			cards: [{ id: 0, title: 'SNK', description: 'SNK description' }],
 		},
 		{
-			id: 1,
+			id: generateID(),
 			title: 'Movies',
 			cards: [
 				{ id: 0, title: 'Suicide Squad', description: 'meh' },
@@ -29,12 +33,11 @@ const ListsContainer = () => {
 			],
 		},
 	]);
+	// console.log(lists);
 
 	const addList = () => {
-		console.log('NEED TO CHANGE IDS');
-
 		const newList = {
-			id: lists.length + 1,
+			id: generateID(),
 			title: 'Placeholder',
 			cards: [],
 		};
@@ -42,18 +45,20 @@ const ListsContainer = () => {
 	};
 
 	const addCard = (listId: number) => {
+		// Gets list and index from the state
 		const list = lists.find((list) => list.id === listId);
 		const listIndex = lists.indexOf(list!);
 
-		console.log('NEED TO CHANGE IDS');
 		const newCard = {
-			id: list!.cards.length + 1,
+			id: generateID(),
 			title: 'New card title placeholder',
 			description: 'new card description placholder',
 		};
 
+		// Adds the new card to the list
 		list!.cards.push(newCard);
 
+		// Replaces the old list with the updated list
 		setLists([
 			...lists.slice(0, listIndex),
 			list!,
@@ -61,15 +66,28 @@ const ListsContainer = () => {
 		]);
 	};
 
+	const removeList = (listId: number) => {
+		// Gets list and index from the state
+		const list = lists.find((list) => list.id === listId);
+		const listIndex = lists.indexOf(list!);
+
+		// Creates a copy of the state then removes the list
+		const newLists = [...lists];
+		newLists.splice(listIndex, 1);
+
+		setLists(newLists);
+	};
+
 	return (
 		<section>
-			{lists.map((list, idx) => (
+			{lists.map((list) => (
 				<List
-					key={idx}
+					key={list.id}
 					id={list.id}
 					title={list.title}
 					cards={list.cards}
 					addCard={addCard}
+					removeList={removeList}
 				/>
 			))}
 			{/* <button onClick={() => dispatch(addList())}> */}

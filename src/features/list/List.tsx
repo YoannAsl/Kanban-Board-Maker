@@ -7,9 +7,10 @@ export interface ListProps {
 	title: string;
 	cards: CardProps[];
 	addCard: (listId: number) => void;
+	removeList: (listId: number) => void;
 }
 
-const List = ({ id, title, cards, addCard }: ListProps) => {
+const List = ({ id, title, cards, addCard, removeList }: ListProps) => {
 	// const List = ({ list }: ListProps) => {
 	// const { title, cards } = list;
 	// const dispatch = useAppDispatch();
@@ -27,6 +28,7 @@ const List = ({ id, title, cards, addCard }: ListProps) => {
 				))}
 			</ul>
 			<button onClick={() => addCard(id)}>Create a new card</button>
+			<button onClick={() => removeList(id)}>Remove list</button>
 		</li>
 	);
 };
