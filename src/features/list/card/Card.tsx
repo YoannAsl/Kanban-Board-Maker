@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 
 export interface CardProps {
 	id: number;
@@ -9,12 +10,20 @@ export interface CardProps {
 
 const Card = ({ id, title, description, removeCard }: CardProps) => {
 	return (
-		<li>
+		<Container>
 			<h3>{title}</h3>
 			<p>{description}</p>
 			<button onClick={() => removeCard(id)}>Delete card</button>
-		</li>
+		</Container>
 	);
 };
+
+const Container = styled.li`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 10px 0;
+	border: 1px solid grey;
+`;
 
 export default Card;

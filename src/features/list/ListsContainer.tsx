@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
+
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { addList } from './listsSlice';
 
@@ -11,9 +13,7 @@ import List, { ListProps } from './List';
 // 	cards: CardProps[];
 // };
 
-const generateID = () => {
-	return Math.floor(Math.random() * 10000);
-};
+const generateID = () => Math.floor(Math.random() * 10000);
 
 const ListsContainer = () => {
 	// const dispatch = useAppDispatch();
@@ -43,7 +43,6 @@ const ListsContainer = () => {
 			],
 		},
 	]);
-	// console.log(lists);
 
 	const addList = () => {
 		const newList = {
@@ -109,7 +108,7 @@ const ListsContainer = () => {
 	};
 
 	return (
-		<section>
+		<Container>
 			{lists.map((list) => (
 				<List
 					key={list.id}
@@ -123,8 +122,16 @@ const ListsContainer = () => {
 			))}
 			{/* <button onClick={() => dispatch(addList())}> */}
 			<button onClick={addList}>Create a new list</button>
-		</section>
+		</Container>
 	);
 };
+
+const Container = styled.section`
+	display: flex;
+	gap: 10px;
+	button {
+		height: min-content;
+	}
+`;
 
 export default ListsContainer;
