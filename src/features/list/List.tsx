@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Droppable } from 'react-beautiful-dnd';
+
 import { useAppDispatch } from '../../hooks';
 
 import Card, { CardProps } from './card/Card';
@@ -11,6 +13,7 @@ export interface ListProps {
 	addCard: (listId: number) => void;
 	removeList: (listId: number) => void;
 	removeCard: (cardId: number) => void;
+	idx: number;
 }
 
 const List = ({
@@ -20,23 +23,31 @@ const List = ({
 	addCard,
 	removeList,
 	removeCard,
+	idx,
 }: ListProps) => {
 	// const dispatch = useAppDispatch();
 
 	return (
 		<Container>
 			<h1>{title}</h1>
-			<ul>
-				{cards.map((card) => (
-					<Card
-						key={card.id}
-						id={card.id}
-						title={card.title}
-						description={card.description}
-						removeCard={removeCard}
-					/>
-				))}
-			</ul>
+			<Droppable droppableId={`${idx}`}>
+				{(provided) => (
+					<ul {...provided.droppableProps} ref={provided.innerRef}>
+						{cards.map((card, idx) => (
+							<Card
+								key={card.id}
+								id={card.id}
+								title={card.title}
+								description={card.description}
+								removeCard={removeCard}
+								index={idx}
+							/>
+						))}
+						{provided.placeholder}
+					</ul>
+				)}
+			</Droppable>
+
 			<button onClick={() => addCard(id)}>Create a new card</button>
 			<button onClick={() => removeList(id)}>Remove list</button>
 		</Container>

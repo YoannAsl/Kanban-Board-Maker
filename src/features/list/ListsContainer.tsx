@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { addList } from './listsSlice';
@@ -107,22 +108,57 @@ const ListsContainer = () => {
 		]);
 	};
 
+	const handleOnDragEnd = (result: DropResult) => {
+		const { destination, source, draggableId } = result;
+		// console.log(result);
+		if (!destination) {
+			return;
+		}
+		if (
+			destination.droppableId === source.droppableId &&
+			destination.index === source.index
+		) {
+			return;
+		}
+
+		// Created a copy of the list and the list's cards
+		const list = lists[+source.droppableId];
+		const copiedCards = [...list.cards];
+
+		// Removes the selected card from the list
+		const [removed] = copiedCards.splice(source.index, 1);
+
+		// Moves the card to the correct place
+		copiedCards.splice(destination.index, 0, removed);
+
+		const reorderedList = { ...list, cards: copiedCards };
+
+		setLists([
+			...lists.slice(0, +source.droppableId),
+			reorderedList,
+			...lists.slice(+source.droppableId + 1),
+		]);
+	};
+
 	return (
-		<Container>
-			{lists.map((list) => (
-				<List
-					key={list.id}
-					id={list.id}
-					title={list.title}
-					cards={list.cards}
-					addCard={addCard}
-					removeList={removeList}
-					removeCard={removeCard}
-				/>
-			))}
-			{/* <button onClick={() => dispatch(addList())}> */}
-			<button onClick={addList}>Create a new list</button>
-		</Container>
+		<DragDropContext onDragEnd={handleOnDragEnd}>
+			<Container>
+				{lists.map((list, idx) => (
+					<List
+						key={list.id}
+						id={list.id}
+						title={list.title}
+						cards={list.cards}
+						addCard={addCard}
+						removeList={removeList}
+						removeCard={removeCard}
+						idx={idx}
+					/>
+				))}
+				{/* <button onClick={() => dispatch(addList())}> */}
+				<button onClick={addList}>Create a new list</button>
+			</Container>
+		</DragDropContext>
 	);
 };
 
