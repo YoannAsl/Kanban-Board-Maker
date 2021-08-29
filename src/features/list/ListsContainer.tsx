@@ -109,35 +109,54 @@ const ListsContainer = () => {
 	};
 
 	const handleOnDragEnd = (result: DropResult) => {
-		const { destination, source, draggableId } = result;
+		const { destination, source } = result;
 		// console.log(result);
-		if (!destination) {
-			return;
+		if (!destination) return;
+
+		// If we move a card within the same list
+		if (destination.droppableId === source.droppableId) {
+			// Creates a copy of the list and the list's cards
+			const list = { ...lists[+source.droppableId] };
+			const copiedCards = [...list.cards];
+
+			// Removes the selected card from the list
+			const [removed] = copiedCards.splice(source.index, 1);
+
+			// Moves the card to the correct place
+			copiedCards.splice(destination.index, 0, removed);
+
+			const reorderedList = { ...list, cards: copiedCards };
+
+			setLists([
+				...lists.slice(0, +source.droppableId),
+				reorderedList,
+				...lists.slice(+source.droppableId + 1),
+			]);
+		} else {
+			const sourceList = { ...lists[+source.droppableId] };
+			const destList = { ...lists[+destination.droppableId] };
+			const sourceCards = [...sourceList.cards];
+			const destCards = [...destList.cards];
+			const [removed] = sourceCards.splice(source.index, 1);
+			destCards.splice(destination.index, 0, removed);
+			sourceList.cards = sourceCards;
+			destList.cards = destCards;
+
+			/* We have to do two operations to change the state: one for the source list and one for the destination list.
+            First we replace the original source list by the reordered one, then we use reorderedLists to replace the original destination list by the reordered one */
+
+			const reorderedLists = [
+				...lists.slice(0, +source.droppableId),
+				sourceList,
+				...lists.slice(+source.droppableId + 1),
+			];
+
+			setLists([
+				...reorderedLists.slice(0, +destination.droppableId),
+				destList,
+				...reorderedLists.slice(+destination.droppableId + 1),
+			]);
 		}
-		if (
-			destination.droppableId === source.droppableId &&
-			destination.index === source.index
-		) {
-			return;
-		}
-
-		// Created a copy of the list and the list's cards
-		const list = lists[+source.droppableId];
-		const copiedCards = [...list.cards];
-
-		// Removes the selected card from the list
-		const [removed] = copiedCards.splice(source.index, 1);
-
-		// Moves the card to the correct place
-		copiedCards.splice(destination.index, 0, removed);
-
-		const reorderedList = { ...list, cards: copiedCards };
-
-		setLists([
-			...lists.slice(0, +source.droppableId),
-			reorderedList,
-			...lists.slice(+source.droppableId + 1),
-		]);
 	};
 
 	return (
