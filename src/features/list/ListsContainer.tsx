@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { v4 as uuid } from 'uuid';
 
-import { useAppSelector, useAppDispatch } from '../../hooks';
-import { addList } from './listsSlice';
+// import { useAppSelector, useAppDispatch } from '../../hooks';
+// import { addList } from './listsSlice';
 
 // import { CardProps } from './card/Card';
 import List, { ListProps } from './List';
@@ -14,179 +15,148 @@ import List, { ListProps } from './List';
 // 	cards: CardProps[];
 // };
 
-const generateID = () => Math.floor(Math.random() * 10000);
+interface DataType {
+    lists: { [key: string]: { title: string; cards: CardType[] } };
+    listsIds: string[];
+}
+
+export interface CardType {
+    title: string;
+    description: string;
+    id: string;
+}
 
 const ListsContainer = () => {
-	// const dispatch = useAppDispatch();
-	// const lists = useAppSelector((state) => state.lists);
-	const [lists, setLists] = useState([
-		{
-			id: generateID(),
-			title: 'Series',
-			cards: [
-				{
-					id: generateID(),
-					title: 'SNK',
-					description: 'SNK description',
-				},
-			],
-		},
-		{
-			id: generateID(),
-			title: 'Movies',
-			cards: [
-				{
-					id: generateID(),
-					title: 'Suicide Squad',
-					description: 'meh',
-				},
-				{ id: generateID(), title: 'Joker', description: 'good' },
-			],
-		},
-	]);
+    // const dispatch = useAppDispatch();
+    // const lists = useAppSelector((state) => state.lists);
+    const [data, setData] = useState<DataType>({ lists: {}, listsIds: [] });
+    // const [lists, setLists] = useState([
+    //     {
+    //         id: generateID(),
+    //         title: 'Series',
+    //         cards: [
+    //             {
+    //                 id: generateID(),
+    //                 title: 'SNK',
+    //                 description: 'SNK description',
+    //             },
+    //         ],
+    //     },
+    //     {
+    //         id: generateID(),
+    //         title: 'Movies',
+    //         cards: [
+    //             {
+    //                 id: generateID(),
+    //                 title: 'Suicide Squad',
+    //                 description: 'meh',
+    //             },
+    //             { id: generateID(), title: 'Joker', description: 'good' },
+    //         ],
+    //     },
+    // ]);
 
-	const addList = () => {
-		const newList = {
-			id: generateID(),
-			title: 'Placeholder',
-			cards: [],
-		};
-		setLists([...lists, newList]);
-	};
+    const addList = () => {
+        const listId = uuid();
+        const newList = {
+            id: listId,
+            title: 'Placeholder',
+            cards: [],
+        };
+        setData({
+            lists: { ...data.lists, [listId]: newList },
+            listsIds: [...data.listsIds, listId],
+        });
+    };
 
-	const addCard = (listId: number) => {
-		// Gets list and index from the state
-		const list = lists.find((list) => list.id === listId);
-		const listIndex = lists.indexOf(list!);
+    const addCard = (listId: string) => {
+        const cardId = uuid();
+        const list = data.lists[listId];
 
-		const newCard = {
-			id: generateID(),
-			title: 'New card title placeholder',
-			description: 'new card description placholder',
-		};
+        const newCard = {
+            id: cardId,
+            title: cardId,
+            description: 'new card description placholder',
+        };
+        list.cards.push(newCard);
 
-		// Adds the new card to the list
-		list!.cards.push(newCard);
+        setData({
+            lists: { ...data.lists, [listId]: list },
+            listsIds: [...data.listsIds],
+        });
+    };
 
-		// Replaces the old list with the updated list
-		setLists([
-			...lists.slice(0, listIndex),
-			list!,
-			...lists.slice(listIndex + 1),
-		]);
-	};
+    const removeList = (listId: string) => {
+        const newData = { ...data };
+        const listIndex = newData.listsIds.indexOf(listId);
 
-	const removeList = (listId: number) => {
-		// Gets list and index from the state
-		const list = lists.find((list) => list.id === listId);
-		const listIndex = lists.indexOf(list!);
+        delete newData.lists[listId];
+        newData.listsIds.splice(listIndex, 1);
+        setData(newData);
+    };
 
-		// Creates a copy of the state then removes the list
-		const newLists = [...lists];
-		newLists.splice(listIndex, 1);
+    const removeCard = (cardId: string, listId: string) => {
+        const newData = { ...data };
+        const list = newData.lists[listId];
+        const card = list.cards.find((card) => card.id === cardId);
+        const cardIndex = list.cards.indexOf(card!);
 
-		setLists(newLists);
-	};
+        list.cards.splice(cardIndex, 1);
+        setData(newData);
+    };
 
-	const removeCard = (cardId: number) => {
-		// Gets list and index from the state
-		const list = lists.find((list) =>
-			list.cards.some((card) => card.id === cardId)
-		);
-		const listIndex = lists.indexOf(list!);
+    const handleOnDragEnd = (result: DropResult) => {
+        const { destination, source } = result;
+        if (!destination) return;
 
-		// Gets card and index
-		const card = list!.cards.find((card) => card.id === cardId);
-		const cardIndex = list!.cards.indexOf(card!);
+        const newData = { ...data };
 
-		list!.cards.splice(cardIndex, 1);
+        // If we move a card within the same list
+        if (destination.droppableId === source.droppableId) {
+            const list = newData.lists[source.droppableId];
+            const [removed] = list.cards.splice(source.index, 1);
 
-		setLists([
-			...lists.slice(0, listIndex),
-			list!,
-			...lists.slice(listIndex + 1),
-		]);
-	};
+            // Moves the card to the correct place
+            list.cards.splice(destination.index, 0, removed);
 
-	const handleOnDragEnd = (result: DropResult) => {
-		const { destination, source } = result;
-		// console.log(result);
-		if (!destination) return;
+            setData(newData);
+        } else {
+            const sourceList = newData.lists[source.droppableId];
+            const destList = newData.lists[destination.droppableId];
+            const [removed] = sourceList.cards.splice(source.index, 1);
+            destList.cards.splice(destination.index, 0, removed);
 
-		// If we move a card within the same list
-		if (destination.droppableId === source.droppableId) {
-			// Creates a copy of the list and the list's cards
-			const list = { ...lists[+source.droppableId] };
-			const copiedCards = [...list.cards];
+            setData(newData);
+        }
+    };
 
-			// Removes the selected card from the list
-			const [removed] = copiedCards.splice(source.index, 1);
-
-			// Moves the card to the correct place
-			copiedCards.splice(destination.index, 0, removed);
-
-			const reorderedList = { ...list, cards: copiedCards };
-
-			setLists([
-				...lists.slice(0, +source.droppableId),
-				reorderedList,
-				...lists.slice(+source.droppableId + 1),
-			]);
-		} else {
-			const sourceList = { ...lists[+source.droppableId] };
-			const destList = { ...lists[+destination.droppableId] };
-			const sourceCards = [...sourceList.cards];
-			const destCards = [...destList.cards];
-			const [removed] = sourceCards.splice(source.index, 1);
-			destCards.splice(destination.index, 0, removed);
-			sourceList.cards = sourceCards;
-			destList.cards = destCards;
-
-			/* We have to do two operations to change the state: one for the source list and one for the destination list.
-            First we replace the original source list by the reordered one, then we use reorderedLists to replace the original destination list by the reordered one */
-
-			const reorderedLists = [
-				...lists.slice(0, +source.droppableId),
-				sourceList,
-				...lists.slice(+source.droppableId + 1),
-			];
-
-			setLists([
-				...reorderedLists.slice(0, +destination.droppableId),
-				destList,
-				...reorderedLists.slice(+destination.droppableId + 1),
-			]);
-		}
-	};
-
-	return (
-		<DragDropContext onDragEnd={handleOnDragEnd}>
-			<Container>
-				{lists.map((list, idx) => (
-					<List
-						key={list.id}
-						id={list.id}
-						title={list.title}
-						cards={list.cards}
-						addCard={addCard}
-						removeList={removeList}
-						removeCard={removeCard}
-						idx={idx}
-					/>
-				))}
-				{/* <button onClick={() => dispatch(addList())}> */}
-				<button onClick={addList}>Create a new list</button>
-			</Container>
-		</DragDropContext>
-	);
+    return (
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+            <Container>
+                {data.listsIds.map((id) => (
+                    <List
+                        key={id}
+                        id={id}
+                        title={data.lists[id].title}
+                        cards={data.lists[id].cards}
+                        addCard={addCard}
+                        removeList={removeList}
+                        removeCard={removeCard}
+                    />
+                ))}
+                {/* <button onClick={() => dispatch(addList())}> */}
+                <button onClick={addList}>Create a new list</button>
+            </Container>
+        </DragDropContext>
+    );
 };
 
 const Container = styled.section`
-	display: flex;
-	gap: 10px;
-	button {
-		height: min-content;
-	}
+    display: flex;
+    gap: 10px;
+    button {
+        height: min-content;
+    }
 `;
 
 export default ListsContainer;
