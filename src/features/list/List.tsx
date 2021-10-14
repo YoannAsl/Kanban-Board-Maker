@@ -13,7 +13,6 @@ export interface ListProps {
     addCard: (listId: string) => void;
     removeList: (listId: string) => void;
     removeCard: (cardId: string, listId: string) => void;
-    idx: number;
 }
 
 const List = ({
@@ -23,7 +22,6 @@ const List = ({
     addCard,
     removeList,
     removeCard,
-    idx,
 }: ListProps) => {
     // const dispatch = useAppDispatch();
 
