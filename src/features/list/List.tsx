@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Droppable } from 'react-beautiful-dnd';
 import { CardType } from './ListsContainer';
@@ -8,8 +8,9 @@ import Card, { CardProps } from './card/Card';
 
 export interface ListProps {
     id: string;
-    title: string;
-    cards: CardType[];
+    list: { title: string; cards: CardType[] };
+    // title: string;
+    // cards: CardType[];
     addCard: (listId: string) => void;
     removeList: (listId: string) => void;
     removeCard: (cardId: string, listId: string) => void;
@@ -17,21 +18,35 @@ export interface ListProps {
 
 const List = ({
     id,
-    title,
-    cards,
+    list,
+    // title,
+    // cards,
     addCard,
     removeList,
     removeCard,
 }: ListProps) => {
     // const dispatch = useAppDispatch();
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [title, setTitle] = useState(list.title);
+
+    function editTitle(e: React.FormEvent<HTMLTextAreaElement>) {
+        setTitle(e.currentTarget.value);
+    }
 
     return (
         <Container>
-            <h1>{title}</h1>
+            {/* {!isEditingTitle ? (
+                <h1 onClick={() => setIsEditingTitle(true)}>{title}</h1>
+            ) : (
+                <input type='text' value={title} onChange={editTitle}></input>
+            )} */}
+
+            <Title value={title} onChange={editTitle}></Title>
+
             <Droppable droppableId={id}>
                 {(provided) => (
                     <ul {...provided.droppableProps} ref={provided.innerRef}>
-                        {cards.map((card, idx) => (
+                        {list.cards.map((card, idx) => (
                             <Card
                                 key={card.id}
                                 id={card.id}
@@ -55,10 +70,23 @@ const List = ({
 
 const Container = styled.li`
     display: flex;
-    width: 10%;
+    width: 250px;
     flex-direction: column;
     align-items: center;
     border: 1px solid black;
+    margin-left: 5rem;
+`;
+
+const Title = styled.textarea`
+    border: none;
+    /* outline: none; */
+    resize: none;
+    cursor: default;
+    padding: 0;
+    height: 28px;
+    &:focus {
+        cursor: text;
+    }
 `;
 
 export default List;

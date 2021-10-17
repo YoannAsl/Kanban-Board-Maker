@@ -105,6 +105,8 @@ const ListsContainer = () => {
         setData(newData);
     };
 
+    const editListTitle = (listId: string, newTitle: string) => {};
+
     const handleOnDragEnd = (result: DropResult) => {
         const { destination, source } = result;
         if (!destination) return;
@@ -114,17 +116,17 @@ const ListsContainer = () => {
         // If we move a card within the same list
         if (destination.droppableId === source.droppableId) {
             const list = newData.lists[source.droppableId];
-            const [removed] = list.cards.splice(source.index, 1);
+            const [removedCard] = list.cards.splice(source.index, 1);
 
             // Moves the card to the correct place
-            list.cards.splice(destination.index, 0, removed);
+            list.cards.splice(destination.index, 0, removedCard);
 
             setData(newData);
         } else {
             const sourceList = newData.lists[source.droppableId];
-            const destList = newData.lists[destination.droppableId];
-            const [removed] = sourceList.cards.splice(source.index, 1);
-            destList.cards.splice(destination.index, 0, removed);
+            const destinationList = newData.lists[destination.droppableId];
+            const [removedCard] = sourceList.cards.splice(source.index, 1);
+            destinationList.cards.splice(destination.index, 0, removedCard);
 
             setData(newData);
         }
@@ -137,8 +139,9 @@ const ListsContainer = () => {
                     <List
                         key={id}
                         id={id}
-                        title={data.lists[id].title}
-                        cards={data.lists[id].cards}
+                        list={data.lists[id]}
+                        // title={data.lists[id].title}
+                        // cards={data.lists[id].cards}
                         addCard={addCard}
                         removeList={removeList}
                         removeCard={removeCard}
