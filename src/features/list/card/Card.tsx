@@ -48,7 +48,6 @@ const Container = styled.li`
     margin: 10px 0;
     border: 1px solid grey;
     background-color: white;
-    /* width: 90%; */
 `;
 
 export default Card;

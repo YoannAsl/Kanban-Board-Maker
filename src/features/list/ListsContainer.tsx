@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
 import { v4 as uuid } from 'uuid';
 
 // import { useAppSelector, useAppDispatch } from '../../hooks';
@@ -30,31 +30,6 @@ const ListsContainer = () => {
     // const dispatch = useAppDispatch();
     // const lists = useAppSelector((state) => state.lists);
     const [data, setData] = useState<DataType>({ lists: {}, listsIds: [] });
-    // const [lists, setLists] = useState([
-    //     {
-    //         id: generateID(),
-    //         title: 'Series',
-    //         cards: [
-    //             {
-    //                 id: generateID(),
-    //                 title: 'SNK',
-    //                 description: 'SNK description',
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         id: generateID(),
-    //         title: 'Movies',
-    //         cards: [
-    //             {
-    //                 id: generateID(),
-    //                 title: 'Suicide Squad',
-    //                 description: 'meh',
-    //             },
-    //             { id: generateID(), title: 'Joker', description: 'good' },
-    //         ],
-    //     },
-    // ]);
 
     const addList = () => {
         const listId = uuid();
@@ -108,20 +83,35 @@ const ListsContainer = () => {
     const editListTitle = (listId: string, newTitle: string) => {};
 
     const handleOnDragEnd = (result: DropResult) => {
-        const { destination, source } = result;
+        const { destination, source, type, draggableId } = result;
         if (!destination) return;
 
+        // if (
+        //     destination.droppableId === source.droppableId &&
+        //     destination.index === source.index
+        // ) {
+        //     return;
+        // }
+
         const newData = { ...data };
+
+        if (type === 'list') {
+            newData.listsIds.splice(source.index, 1);
+            newData.listsIds.splice(destination.index, 0, draggableId);
+
+            setData(newData);
+            return;
+        }
 
         // If we move a card within the same list
         if (destination.droppableId === source.droppableId) {
             const list = newData.lists[source.droppableId];
             const [removedCard] = list.cards.splice(source.index, 1);
-
             // Moves the card to the correct place
             list.cards.splice(destination.index, 0, removedCard);
 
             setData(newData);
+            return;
         } else {
             const sourceList = newData.lists[source.droppableId];
             const destinationList = newData.lists[destination.droppableId];
@@ -134,29 +124,43 @@ const ListsContainer = () => {
 
     return (
         <DragDropContext onDragEnd={handleOnDragEnd}>
-            <Container>
-                {data.listsIds.map((id) => (
-                    <List
-                        key={id}
-                        id={id}
-                        list={data.lists[id]}
-                        // title={data.lists[id].title}
-                        // cards={data.lists[id].cards}
-                        addCard={addCard}
-                        removeList={removeList}
-                        removeCard={removeCard}
-                    />
-                ))}
-                {/* <button onClick={() => dispatch(addList())}> */}
-                <button onClick={addList}>Create a new list</button>
-            </Container>
+            <Droppable
+                droppableId='all-lists'
+                direction='horizontal'
+                type='list'
+            >
+                {(provided) => (
+                    <Container
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                    >
+                        {data.listsIds.map((id, index) => (
+                            <List
+                                key={id}
+                                id={id}
+                                list={data.lists[id]}
+                                // title={data.lists[id].title}
+                                // cards={data.lists[id].cards}
+                                addCard={addCard}
+                                removeList={removeList}
+                                removeCard={removeCard}
+                                index={index}
+                            />
+                        ))}
+                        {/* <button onClick={() => dispatch(addList())}> */}
+                        <button onClick={addList}>Create a new list</button>
+                        {provided.placeholder}
+                    </Container>
+                )}
+            </Droppable>
         </DragDropContext>
     );
 };
 
 const Container = styled.section`
-    display: flex;
+    /* display: grid; */
     /* gap: 10px; */
+    display: inline-flex;
     button {
         height: min-content;
     }

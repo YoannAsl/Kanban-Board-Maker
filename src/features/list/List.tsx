@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Droppable } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { CardType } from './ListsContainer';
 import { useAppDispatch } from '../../hooks';
 
@@ -14,6 +14,7 @@ export interface ListProps {
     addCard: (listId: string) => void;
     removeList: (listId: string) => void;
     removeCard: (cardId: string, listId: string) => void;
+    index: number;
 }
 
 const List = ({
@@ -24,9 +25,9 @@ const List = ({
     addCard,
     removeList,
     removeCard,
+    index,
 }: ListProps) => {
     // const dispatch = useAppDispatch();
-    const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [title, setTitle] = useState(list.title);
 
     function editTitle(e: React.FormEvent<HTMLTextAreaElement>) {
@@ -34,47 +35,63 @@ const List = ({
     }
 
     return (
-        <Container>
-            {/* {!isEditingTitle ? (
-                <h1 onClick={() => setIsEditingTitle(true)}>{title}</h1>
-            ) : (
-                <input type='text' value={title} onChange={editTitle}></input>
-            )} */}
+        <Draggable draggableId={id} index={index}>
+            {(provided) => (
+                <Container
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    ref={provided.innerRef}
+                >
+                    <Title
+                        value={title}
+                        onChange={editTitle}
+                        // {...provided.dragHandleProps}
+                    />
 
-            <Title value={title} onChange={editTitle}></Title>
+                    <Droppable
+                        droppableId={id}
+                        direction='vertical'
+                        type='card'
+                    >
+                        {(provided) => (
+                            <ul
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                            >
+                                {list.cards.map((card, idx) => (
+                                    <Card
+                                        key={card.id}
+                                        id={card.id}
+                                        title={card.title}
+                                        description={card.description}
+                                        removeCard={removeCard}
+                                        index={idx}
+                                        listId={id}
+                                    />
+                                ))}
+                                {provided.placeholder}
+                            </ul>
+                        )}
+                    </Droppable>
 
-            <Droppable droppableId={id}>
-                {(provided) => (
-                    <ul {...provided.droppableProps} ref={provided.innerRef}>
-                        {list.cards.map((card, idx) => (
-                            <Card
-                                key={card.id}
-                                id={card.id}
-                                title={card.title}
-                                description={card.description}
-                                removeCard={removeCard}
-                                index={idx}
-                                listId={id}
-                            />
-                        ))}
-                        {provided.placeholder}
-                    </ul>
-                )}
-            </Droppable>
-
-            <button onClick={() => addCard(id)}>Create a new card</button>
-            <button onClick={() => removeList(id)}>Remove list</button>
-        </Container>
+                    <button onClick={() => addCard(id)}>
+                        Create a new card
+                    </button>
+                    <button onClick={() => removeList(id)}>Remove list</button>
+                </Container>
+            )}
+        </Draggable>
     );
 };
 
 const Container = styled.li`
-    display: flex;
+    display: inline-flex;
     width: 250px;
     flex-direction: column;
     border: 1px solid black;
     margin-left: 5rem;
     padding: 10px;
+    background-color: white;
     ul {
         display: flex;
         flex-direction: column;
