@@ -72,13 +72,12 @@ const Container = styled.li`
     display: flex;
     width: 250px;
     flex-direction: column;
-    align-items: center;
     border: 1px solid black;
     margin-left: 5rem;
+    padding: 10px;
     ul {
         display: flex;
         flex-direction: column;
-        align-items: center;
     }
 `;
 
