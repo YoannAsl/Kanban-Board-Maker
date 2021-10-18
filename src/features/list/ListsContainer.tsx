@@ -156,7 +156,7 @@ const ListsContainer = () => {
 
 const Container = styled.section`
     display: flex;
-    gap: 10px;
+    /* gap: 10px; */
     button {
         height: min-content;
     }

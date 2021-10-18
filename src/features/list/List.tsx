@@ -75,11 +75,16 @@ const Container = styled.li`
     align-items: center;
     border: 1px solid black;
     margin-left: 5rem;
+    ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 `;
 
 const Title = styled.textarea`
     border: none;
-    /* outline: none; */
+    outline: none;
     resize: none;
     cursor: default;
     padding: 0;
