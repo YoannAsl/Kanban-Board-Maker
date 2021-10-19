@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
 
-export interface CardProps {
+interface CardProps {
     id: string;
     title: string;
     description: string;
@@ -27,13 +27,11 @@ const Card = ({
                     {...provided.dragHandleProps}
                     ref={provided.innerRef}
                 >
-                    <div>
-                        <h3>{title}</h3>
-                        <p>{description}</p>
-                        <button onClick={() => removeCard(id, listId)}>
-                            Delete card
-                        </button>
-                    </div>
+                    <h3>{title}</h3>
+                    <p>{description}</p>
+                    <button onClick={() => removeCard(id, listId)}>
+                        Delete card
+                    </button>
                 </Container>
             )}
         </Draggable>

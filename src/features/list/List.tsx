@@ -2,15 +2,12 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { CardType } from './ListsContainer';
-import { useAppDispatch } from '../../hooks';
 
-import Card, { CardProps } from './card/Card';
+import Card from './card/Card';
 
 export interface ListProps {
     id: string;
-    list: { title: string; cards: CardType[] };
-    // title: string;
-    // cards: CardType[];
+    data: { title: string; cards: CardType[] };
     addCard: (listId: string) => void;
     removeList: (listId: string) => void;
     removeCard: (cardId: string, listId: string) => void;
@@ -19,16 +16,13 @@ export interface ListProps {
 
 const List = ({
     id,
-    list,
-    // title,
-    // cards,
+    data,
     addCard,
     removeList,
     removeCard,
     index,
 }: ListProps) => {
-    // const dispatch = useAppDispatch();
-    const [title, setTitle] = useState(list.title);
+    const [title, setTitle] = useState(data.title);
 
     function editTitle(e: React.FormEvent<HTMLTextAreaElement>) {
         setTitle(e.currentTarget.value);
@@ -58,7 +52,7 @@ const List = ({
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                             >
-                                {list.cards.map((card, idx) => (
+                                {data.cards.map((card, idx) => (
                                     <Card
                                         key={card.id}
                                         id={card.id}

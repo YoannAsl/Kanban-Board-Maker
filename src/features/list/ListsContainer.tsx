@@ -3,17 +3,7 @@ import styled from 'styled-components';
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
 import { v4 as uuid } from 'uuid';
 
-// import { useAppSelector, useAppDispatch } from '../../hooks';
-// import { addList } from './listsSlice';
-
-// import { CardProps } from './card/Card';
-import List, { ListProps } from './List';
-
-// type ListType = {
-// 	id: number;
-// 	title: string;
-// 	cards: CardProps[];
-// };
+import List from './List';
 
 interface DataType {
     lists: { [key: string]: { title: string; cards: CardType[] } };
@@ -27,8 +17,6 @@ export interface CardType {
 }
 
 const ListsContainer = () => {
-    // const dispatch = useAppDispatch();
-    // const lists = useAppSelector((state) => state.lists);
     const [data, setData] = useState<DataType>({ lists: {}, listsIds: [] });
 
     const addList = () => {
@@ -46,7 +34,7 @@ const ListsContainer = () => {
 
     const addCard = (listId: string) => {
         const cardId = uuid();
-        const list = data.lists[listId];
+        const list = { ...data.lists[listId] };
 
         const newCard = {
             id: cardId,
@@ -84,17 +72,13 @@ const ListsContainer = () => {
 
     const handleOnDragEnd = (result: DropResult) => {
         const { destination, source, type, draggableId } = result;
-        if (!destination) return;
 
-        // if (
-        //     destination.droppableId === source.droppableId &&
-        //     destination.index === source.index
-        // ) {
-        //     return;
-        // }
+        // If we drop a draggable in a non droppable area
+        if (!destination) return;
 
         const newData = { ...data };
 
+        // If we move a list
         if (type === 'list') {
             newData.listsIds.splice(source.index, 1);
             newData.listsIds.splice(destination.index, 0, draggableId);
@@ -107,19 +91,20 @@ const ListsContainer = () => {
         if (destination.droppableId === source.droppableId) {
             const list = newData.lists[source.droppableId];
             const [removedCard] = list.cards.splice(source.index, 1);
-            // Moves the card to the correct place
+
             list.cards.splice(destination.index, 0, removedCard);
 
             setData(newData);
             return;
-        } else {
-            const sourceList = newData.lists[source.droppableId];
-            const destinationList = newData.lists[destination.droppableId];
-            const [removedCard] = sourceList.cards.splice(source.index, 1);
-            destinationList.cards.splice(destination.index, 0, removedCard);
-
-            setData(newData);
         }
+
+        // If we move a card between different lists
+        const sourceList = newData.lists[source.droppableId];
+        const destinationList = newData.lists[destination.droppableId];
+        const [removedCard] = sourceList.cards.splice(source.index, 1);
+        destinationList.cards.splice(destination.index, 0, removedCard);
+
+        setData(newData);
     };
 
     return (
@@ -138,16 +123,13 @@ const ListsContainer = () => {
                             <List
                                 key={id}
                                 id={id}
-                                list={data.lists[id]}
-                                // title={data.lists[id].title}
-                                // cards={data.lists[id].cards}
+                                data={data.lists[id]}
                                 addCard={addCard}
                                 removeList={removeList}
                                 removeCard={removeCard}
                                 index={index}
                             />
                         ))}
-                        {/* <button onClick={() => dispatch(addList())}> */}
                         <button onClick={addList}>Create a new list</button>
                         {provided.placeholder}
                     </Container>
@@ -158,8 +140,6 @@ const ListsContainer = () => {
 };
 
 const Container = styled.section`
-    /* display: grid; */
-    /* gap: 10px; */
     display: inline-flex;
     button {
         height: min-content;
